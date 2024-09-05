@@ -1,0 +1,28 @@
+dynamodb_pyio
+=============
+
+.. py:module:: dynamodb_pyio
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/dynamodb_pyio/io/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   dynamodb_pyio.__version__
+
+
+Package Contents
+----------------
+
+.. py:data:: __version__
+

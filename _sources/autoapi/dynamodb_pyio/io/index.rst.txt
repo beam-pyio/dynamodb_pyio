@@ -1,0 +1,19 @@
+dynamodb_pyio.io
+================
+
+.. py:module:: dynamodb_pyio.io
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   dynamodb_pyio.io.my_fn
+
+
+Module Contents
+---------------
+
+.. py:function:: my_fn()
+
