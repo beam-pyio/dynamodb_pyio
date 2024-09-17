@@ -69,7 +69,7 @@ class DynamoDBClient(object):
             verify = options.get("verify")
 
         session = boto3.session.Session()
-        self.client = session.client(
+        self.resource = session.resource(
             service_name="dynamodb",
             region_name=region_name,
             api_version=api_version,
@@ -81,30 +81,13 @@ class DynamoDBClient(object):
             aws_session_token=session_token,
         )
 
-    def describe_table(self, table_name: str):
-        """Describe an Amazon DynamoDB table
-
-        Args:
-            table_name (str): DynamoDB table name.
-
-        Raises:
-            DynamoDBClientError: DynamoDB client error.
-
-        Returns:
-            (Object): Boto3 response message.
-        """
-        try:
-            boto_response = self.client.describe_table(TableName=table_name)
-            return boto_response
-        except Exception as e:
-            raise DynamoDBClientError(str(e), get_http_error_code(e))
-
-    def batch_write_item(self, records: list, table_name: str):
-        """Write records to an Amazon DynamoDB table in batch.
+    def put_items_batch(self, records: list, table_name: str, dedup_pkeys: list = None):
+        """Put records to an Amazon DynamoDB table using a batch writer object.
 
         Args:
             records (list): Records to send into an Amazon SQS queue.
             table_name (str): DynamoDB table name.
+            dedup_pkeys (list, Optional): List of keys to be used for de-duplicating items in buffer.
 
         Raises:
             DynamoDBClientError: DynamoDB client error.
@@ -116,11 +99,10 @@ class DynamoDBClient(object):
         if not isinstance(records, list):
             raise DynamoDBClientError("Records should be a list.")
         try:
-            request_items = {}
-            request_items[table_name] = [{"PutRequest": {"Item": r}} for r in records]
-            print(request_items)
-            boto_response = self.client.batch_write_item(RequestItems=request_items)
-            return boto_response
+            table = self.resource.Table(table_name)
+            with table.batch_writer(overwrite_by_pkeys=dedup_pkeys or []) as batch:
+                for record in records:
+                    batch.put_item(Item=record)
         except Exception as e:
             raise DynamoDBClientError(str(e), get_http_error_code(e))
 

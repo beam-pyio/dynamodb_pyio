@@ -16,25 +16,56 @@
 #
 
 
+import decimal
 import unittest
 from moto import mock_aws
+import boto3
+from boto3.dynamodb.types import TypeDeserializer
 
 from dynamodb_pyio.boto3_client import DynamoDBClient, DynamoDBClientError
 
 
-def describe_table(dynamodb_client, **kwargs):
-    return dynamodb_client.client.describe_table(**kwargs)
+def set_client(service_name="dynamodb"):
+    options = {
+        "service_name": service_name,
+        "aws_access_key_id": "testing",
+        "aws_secret_access_key": "testing",
+        "region_name": "us-east-1",
+    }
+    return boto3.session.Session().client(**options)
 
 
-def create_table(dynamodb_client, params):
-    return dynamodb_client.client.create_table(**params)
+def describe_table(**kwargs):
+    return set_client().describe_table(**kwargs)
 
 
-def scan_table(dynamodb_client, **kwargs):
-    paginator = dynamodb_client.client.get_paginator("scan")
+def create_table(params):
+    return set_client().create_table(**params)
+
+
+def to_int_if_decimal(v):
+    try:
+        if isinstance(v, decimal.Decimal):
+            return int(v)
+        else:
+            return v
+    except Exception:
+        return v
+
+
+def scan_table(**kwargs):
+    paginator = set_client().get_paginator("scan")
     page_iterator = paginator.paginate(**kwargs)
+    items = []
     for page in page_iterator:
-        print(page)
+        for document in page["Items"]:
+            items.append(
+                {
+                    k: to_int_if_decimal(TypeDeserializer().deserialize(v))
+                    for k, v in document.items()
+                }
+            )
+    return items
 
 
 @mock_aws
@@ -57,23 +88,59 @@ class TestBoto3Client(unittest.TestCase):
             ],
             "AttributeDefinitions": [
                 {"AttributeName": "pk", "AttributeType": "S"},
-                {"AttributeName": "sk", "AttributeType": "S"},
+                {"AttributeName": "sk", "AttributeType": "N"},
             ],
             "BillingMode": "PAY_PER_REQUEST",
         }
-        create_table(self.dynamodb_client, params)
+        create_table(params)
 
-    def test_create_items(self):
-        resp = describe_table(self.dynamodb_client, TableName=self.table_name)
-        print(resp)
-        # records = [{"pk": str(i), "sk": i} for i in range(3)]
-        requests = []
-        # requests.append({"PutRequest": {"Item": {"pk": {"S": "1"}, "sk": {"S": "1"}}}})
-        requests.append({"PutRequest": {"Item": {"pk": "1", "sk": "1"}}})
+    def test_put_items_batch(self):
+        records = [{"pk": str(i), "sk": i} for i in range(3)]
+        self.dynamodb_client.put_items_batch(records, self.table_name)
 
-        self.dynamodb_client.client.batch_write_item(
-            RequestItems={"test-table": requests}
+        self.assertListEqual(records, scan_table(TableName=self.table_name))
+
+    def test_put_items_batch_with_unsupported_record_type(self):
+        # records should be a list
+        records = {}
+        self.assertRaises(
+            DynamoDBClientError,
+            self.dynamodb_client.put_items_batch,
+            records,
+            self.table_name,
         )
 
-        # resp = self.dynamodb_client.batch_write_item(records, self.table_name)
-        # print(resp)
+    def test_put_items_batch_duplicate_records_without_dedup_keys(self):
+        records = [{"pk": str(1), "sk": 1} for i in range(3)]
+        self.assertRaises(
+            DynamoDBClientError,
+            self.dynamodb_client.put_items_batch,
+            records,
+            self.table_name,
+        )
+
+    def test_put_items_batch_duplicate_records_with_dedup_keys(self):
+        records = [{"pk": str(1), "sk": 1} for i in range(3)]
+        self.dynamodb_client.put_items_batch(
+            records, self.table_name, dedup_pkeys=["pk", "sk"]
+        )
+        self.assertListEqual(records[:1], scan_table(TableName=self.table_name))
+
+    def test_put_items_batch_with_wrong_data_types(self):
+        # pk and sk should be string and number respectively
+        records = [{"pk": 1, "sk": str(1)} for i in range(3)]
+        self.assertRaises(
+            DynamoDBClientError,
+            self.dynamodb_client.put_items_batch,
+            records,
+            self.table_name,
+        )
+
+    def test_put_items_batch_with_large_items(self):
+        records = [{"pk": str(i), "sk": i} for i in range(5000)]
+        self.dynamodb_client.put_items_batch(records, self.table_name)
+
+        self.assertEqual(
+            len(records),
+            len(scan_table(TableName=self.table_name)),
+        )
