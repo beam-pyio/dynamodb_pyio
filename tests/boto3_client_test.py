@@ -65,7 +65,7 @@ def scan_table(**kwargs):
                     for k, v in document.items()
                 }
             )
-    return items
+    return sorted(items, key=lambda d: d["sk"])
 
 
 @mock_aws
@@ -95,10 +95,24 @@ class TestBoto3Client(unittest.TestCase):
         create_table(params)
 
     def test_put_items_batch(self):
-        records = [{"pk": str(i), "sk": i} for i in range(3)]
+        records = [{"pk": str(i), "sk": i} for i in range(20)]
         self.dynamodb_client.put_items_batch(records, self.table_name)
-
         self.assertListEqual(records, scan_table(TableName=self.table_name))
+
+    def test_put_items_batch_with_large_items(self):
+        # batch writer automatically handles buffering and sending items in batches
+        records = [{"pk": str(i), "sk": i} for i in range(5000)]
+        self.dynamodb_client.put_items_batch(records, self.table_name)
+        self.assertListEqual(records, scan_table(TableName=self.table_name))
+
+    def test_put_items_batch_with_non_existing_table(self):
+        records = [{"pk": 1, "sk": str(1)} for i in range(20)]
+        self.assertRaises(
+            DynamoDBClientError,
+            self.dynamodb_client.put_items_batch,
+            records,
+            "non-existing-table",
+        )
 
     def test_put_items_batch_with_unsupported_record_type(self):
         # records should be a list
@@ -110,8 +124,18 @@ class TestBoto3Client(unittest.TestCase):
             self.table_name,
         )
 
+    def test_put_items_batch_with_wrong_data_types(self):
+        # pk and sk should be string and number respectively
+        records = [{"pk": 1, "sk": str(1)} for i in range(20)]
+        self.assertRaises(
+            DynamoDBClientError,
+            self.dynamodb_client.put_items_batch,
+            records,
+            self.table_name,
+        )
+
     def test_put_items_batch_duplicate_records_without_dedup_keys(self):
-        records = [{"pk": str(1), "sk": 1} for i in range(3)]
+        records = [{"pk": str(1), "sk": 1} for i in range(20)]
         self.assertRaises(
             DynamoDBClientError,
             self.dynamodb_client.put_items_batch,
@@ -120,27 +144,8 @@ class TestBoto3Client(unittest.TestCase):
         )
 
     def test_put_items_batch_duplicate_records_with_dedup_keys(self):
-        records = [{"pk": str(1), "sk": 1} for i in range(3)]
+        records = [{"pk": str(1), "sk": 1} for i in range(20)]
         self.dynamodb_client.put_items_batch(
             records, self.table_name, dedup_pkeys=["pk", "sk"]
         )
         self.assertListEqual(records[:1], scan_table(TableName=self.table_name))
-
-    def test_put_items_batch_with_wrong_data_types(self):
-        # pk and sk should be string and number respectively
-        records = [{"pk": 1, "sk": str(1)} for i in range(3)]
-        self.assertRaises(
-            DynamoDBClientError,
-            self.dynamodb_client.put_items_batch,
-            records,
-            self.table_name,
-        )
-
-    def test_put_items_batch_with_large_items(self):
-        records = [{"pk": str(i), "sk": i} for i in range(5000)]
-        self.dynamodb_client.put_items_batch(records, self.table_name)
-
-        self.assertEqual(
-            len(records),
-            len(scan_table(TableName=self.table_name)),
-        )

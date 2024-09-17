@@ -86,7 +86,7 @@ class DynamoDBClient(object):
 
         Args:
             records (list): Records to send into an Amazon SQS queue.
-            table_name (str): DynamoDB table name.
+            table_name (str): Amazon DynamoDB table name.
             dedup_pkeys (list, Optional): List of keys to be used for de-duplicating items in buffer.
 
         Raises:
@@ -105,7 +105,3 @@ class DynamoDBClient(object):
                     batch.put_item(Item=record)
         except Exception as e:
             raise DynamoDBClientError(str(e), get_http_error_code(e))
-
-    def close(self):
-        """Closes underlying endpoint connections."""
-        self.client.close()
