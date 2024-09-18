@@ -25,7 +25,7 @@ from boto3.dynamodb.types import TypeDeserializer
 from dynamodb_pyio.boto3_client import DynamoDBClient, DynamoDBClientError
 
 
-def set_client(service_name="dynamodb"):
+def create_client(service_name="dynamodb"):
     options = {
         "service_name": service_name,
         "aws_access_key_id": "testing",
@@ -35,12 +35,8 @@ def set_client(service_name="dynamodb"):
     return boto3.session.Session().client(**options)
 
 
-def describe_table(**kwargs):
-    return set_client().describe_table(**kwargs)
-
-
 def create_table(params):
-    return set_client().create_table(**params)
+    return create_client().create_table(**params)
 
 
 def to_int_if_decimal(v):
@@ -54,7 +50,7 @@ def to_int_if_decimal(v):
 
 
 def scan_table(**kwargs):
-    paginator = set_client().get_paginator("scan")
+    paginator = create_client().get_paginator("scan")
     page_iterator = paginator.paginate(**kwargs)
     items = []
     for page in page_iterator:
