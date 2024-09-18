@@ -27,7 +27,6 @@ from apache_beam.transforms.util import BatchElements
 from apache_beam import GroupIntoBatches
 from apache_beam.options import pipeline_options
 from apache_beam.testing.test_pipeline import TestPipeline
-from apache_beam.testing.util import assert_that, equal_to
 
 from dynamodb_pyio.boto3_client import DynamoDBClient, DynamoDBClientError
 from dynamodb_pyio.io import WriteToDynamoDB, _DynamoDBWriteFn
