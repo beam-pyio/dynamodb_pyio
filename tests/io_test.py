@@ -199,8 +199,7 @@ class TestWriteToDynamoDB(unittest.TestCase):
 
     def test_metrics(self):
         records = [{"pk": str(i), "sk": i} for i in range(20)]
-
-        pipeline = TestPipeline()
+        pipeline = TestPipeline(options=self.pipeline_opts)
         (
             pipeline
             | beam.Create(records)
