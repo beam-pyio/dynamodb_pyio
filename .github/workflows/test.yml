@@ -6,7 +6,6 @@ on:
 
 jobs:
   test:
-
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -30,9 +29,9 @@ jobs:
         run: poetry install
 
       - name: Test with pytest
-        run: poetry run pytest tests/ --cov=dynamodb_pyio --cov-report=xml
+        run: poetry run pytest tests/ -svv --cov=dynamodb_pyio --cov-report=xml -m "not integration"
 
       - name: Use Codecov to track coverage
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage.xml   # coverage report
+          files: ./coverage.xml # coverage report
