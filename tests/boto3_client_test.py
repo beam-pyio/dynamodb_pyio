@@ -131,7 +131,7 @@ class TestBoto3Client(unittest.TestCase):
         )
 
     def test_put_items_batch_duplicate_records_without_dedup_keys(self):
-        records = [{"pk": str(1), "sk": 1} for i in range(20)]
+        records = [{"pk": str(1), "sk": 1} for _ in range(20)]
         self.assertRaises(
             DynamoDBClientError,
             self.dynamodb_client.put_items_batch,
@@ -140,7 +140,7 @@ class TestBoto3Client(unittest.TestCase):
         )
 
     def test_put_items_batch_duplicate_records_with_dedup_keys(self):
-        records = [{"pk": str(1), "sk": 1} for i in range(20)]
+        records = [{"pk": str(1), "sk": 1} for _ in range(20)]
         self.dynamodb_client.put_items_batch(
             records, self.table_name, dedup_pkeys=["pk", "sk"]
         )
