@@ -4,16 +4,41 @@ dynamodb_pyio.io
 .. py:module:: dynamodb_pyio.io
 
 
-Functions
----------
+Classes
+-------
 
 .. autoapisummary::
 
-   dynamodb_pyio.io.my_fn
+   dynamodb_pyio.io.WriteToDynamoDB
 
 
 Module Contents
 ---------------
 
-.. py:function:: my_fn()
+.. py:class:: WriteToDynamoDB(table_name: str, dedup_pkeys: list = None)
+
+   Bases: :py:obj:`apache_beam.PTransform`
+
+
+   A transform that puts records to an Amazon DynamoDB table.
+
+   Takes an input PCollection and put them in batch using the boto3 package.
+   For more information, visit the `Boto3 Documentation <https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html>`__.
+
+   Note that, if the PCollection element is a tuple (i.e. keyed stream), only the value is used to put records in batch.
+
+   :param table_name: Amazon DynamoDB table name.
+   :type table_name: str
+   :param dedup_pkeys: List of keys to be used for de-duplicating records in buffer.
+   :type dedup_pkeys: list, Optional
+
+
+   .. py:attribute:: table_name
+
+
+   .. py:attribute:: dedup_pkeys
+
+
+   .. py:method:: expand(pcoll: apache_beam.pvalue.PCollection)
+
 

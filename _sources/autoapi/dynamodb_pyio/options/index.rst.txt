@@ -1,0 +1,27 @@
+dynamodb_pyio.options
+=====================
+
+.. py:module:: dynamodb_pyio.options
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dynamodb_pyio.options.DynamoDBOptions
+
+
+Module Contents
+---------------
+
+.. py:class:: DynamoDBOptions
+
+   Bases: :py:obj:`apache_beam.options.pipeline_options.PipelineOptions`
+
+
+   .. py:method:: _add_argparse_args(parser)
+      :classmethod:
+
+
+

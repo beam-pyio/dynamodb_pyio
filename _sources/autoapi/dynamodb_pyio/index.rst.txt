@@ -10,7 +10,9 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/dynamodb_pyio/boto3_client/index
    /autoapi/dynamodb_pyio/io/index
+   /autoapi/dynamodb_pyio/options/index
 
 
 Attributes

@@ -24,7 +24,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="prev" title="dynamodb_pyio" href="../index.html" /> 
+    <link rel="next" title="dynamodb_pyio.options" href="../options/index.html" />
+    <link rel="prev" title="dynamodb_pyio.boto3_client" href="../boto3_client/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,7 +55,9 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">dynamodb_pyio</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../boto3_client/index.html">dynamodb_pyio.boto3_client</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">dynamodb_pyio.io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../options/index.html">dynamodb_pyio.options</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a></li>
@@ -93,22 +96,50 @@
              
   <section id="module-dynamodb_pyio.io">
 <span id="dynamodb-pyio-io"></span><h1>dynamodb_pyio.io<a class="headerlink" href="#module-dynamodb_pyio.io" title="Link to this heading"></a></h1>
-<section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dynamodb_pyio.io.my_fn" title="dynamodb_pyio.io.my_fn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">my_fn</span></code></a>()</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dynamodb_pyio.io.WriteToDynamoDB" title="dynamodb_pyio.io.WriteToDynamoDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WriteToDynamoDB</span></code></a></p></td>
+<td><p>A transform that puts records to an Amazon DynamoDB table.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="dynamodb_pyio.io.my_fn">
-<span class="sig-prename descclassname"><span class="pre">dynamodb_pyio.io.</span></span><span class="sig-name descname"><span class="pre">my_fn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dynamodb_pyio/io.html#my_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_pyio.io.my_fn" title="Link to this definition"></a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="dynamodb_pyio.io.WriteToDynamoDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dynamodb_pyio.io.</span></span><span class="sig-name descname"><span class="pre">WriteToDynamoDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dedup_pkeys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dynamodb_pyio/io.html#WriteToDynamoDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_pyio.io.WriteToDynamoDB" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">apache_beam.PTransform</span></code></p>
+<p>A transform that puts records to an Amazon DynamoDB table.</p>
+<p>Takes an input PCollection and put them in batch using the boto3 package.
+For more information, visit the <a class="reference external" href="https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html">Boto3 Documentation</a>.</p>
+<p>Note that, if the PCollection element is a tuple (i.e. keyed stream), only the value is used to put records in batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> (<em>str</em>) – Amazon DynamoDB table name.</p></li>
+<li><p><strong>dedup_pkeys</strong> (<em>list</em><em>, </em><em>Optional</em>) – List of keys to be used for de-duplicating records in buffer.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dynamodb_pyio.io.WriteToDynamoDB.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><a class="reference internal" href="../../../_modules/dynamodb_pyio/io.html#WriteToDynamoDB.table_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_pyio.io.WriteToDynamoDB.table_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dynamodb_pyio.io.WriteToDynamoDB.dedup_pkeys">
+<span class="sig-name descname"><span class="pre">dedup_pkeys</span></span><a class="reference internal" href="../../../_modules/dynamodb_pyio/io.html#WriteToDynamoDB.dedup_pkeys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_pyio.io.WriteToDynamoDB.dedup_pkeys" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dynamodb_pyio.io.WriteToDynamoDB.expand">
+<span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pcoll</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">apache_beam.pvalue.PCollection</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/dynamodb_pyio/io.html#WriteToDynamoDB.expand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dynamodb_pyio.io.WriteToDynamoDB.expand" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
 
 </section>
 </section>
@@ -117,7 +148,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="dynamodb_pyio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../boto3_client/index.html" class="btn btn-neutral float-left" title="dynamodb_pyio.boto3_client" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../options/index.html" class="btn btn-neutral float-right" title="dynamodb_pyio.options" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,71 @@
+dynamodb_pyio.boto3_client
+==========================
+
+.. py:module:: dynamodb_pyio.boto3_client
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   dynamodb_pyio.boto3_client.DynamoDBClientError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   dynamodb_pyio.boto3_client.DynamoDBClient
+
+
+Module Contents
+---------------
+
+.. py:exception:: DynamoDBClientError(message=None, code=None)
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+
+   .. py:attribute:: message
+
+
+   .. py:attribute:: code
+
+
+.. py:class:: DynamoDBClient(options: Union[dynamodb_pyio.options.DynamoDBOptions, dict])
+
+   Bases: :py:obj:`object`
+
+
+   Wrapper for boto3 library.
+
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: resource
+
+
+   .. py:method:: put_items_batch(records: list, table_name: str, dedup_pkeys: list = None)
+
+      Put records to an Amazon DynamoDB table using a batch writer object.
+
+      :param records: Records to send into an Amazon SQS queue.
+      :type records: list
+      :param table_name: Amazon DynamoDB table name.
+      :type table_name: str
+      :param dedup_pkeys: List of keys to be used for de-duplicating items in buffer.
+      :type dedup_pkeys: list, Optional
+
+      :raises DynamoDBClientError: DynamoDB client error.
+
+      :returns: Boto3 response message.
+      :rtype: (Object)
+
+
+
