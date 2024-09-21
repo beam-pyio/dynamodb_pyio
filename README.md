@@ -24,11 +24,11 @@ It has the main composite transform ([`WriteToDynamoDB`](https://beam-pyio.githu
 
 The transform also has an option that handles duplicate records.
 
-- _dedup_pkeys_ - List of keys to be used for de-duplicating items in buffer.
+- _dedup_pkeys_ - List of keys to be used for deduplicating items in buffer.
 
 #### Sink Connector Example
 
-The transform can process a large number of records, thanks to the _batch writer_.
+The transform can process many records, thanks to the _batch writer_.
 
 ```python
 import apache_beam as beam
