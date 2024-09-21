@@ -59,7 +59,7 @@ Module Contents
       :type records: list
       :param table_name: Amazon DynamoDB table name.
       :type table_name: str
-      :param dedup_pkeys: List of keys to be used for de-duplicating items in buffer.
+      :param dedup_pkeys: List of keys to be used for deduplicating items in buffer.
       :type dedup_pkeys: list, Optional
 
       :raises DynamoDBClientError: DynamoDB client error.

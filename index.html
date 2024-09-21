@@ -85,18 +85,72 @@
 <a class="reference external" href="https://github.com/beam-pyio/dynamodb_pyio/releases"><img alt="release" src="https://img.shields.io/github/release/beam-pyio/dynamodb_pyio.svg" /></a>
 <img alt="pypi" src="https://img.shields.io/pypi/v/dynamodb_pyio" />
 <img alt="python" src="https://img.shields.io/pypi/pyversions/dynamodb_pyio" /></p>
-<p>Apache Beam Python I/O connector for Amazon DynamoDB</p>
+<p><a class="reference external" href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB</a> is a serverless, NoSQL database service that allows you to develop modern applications at any scale. The Apache Beam Python I/O connector for Amazon DynamoDB (<code class="docutils literal notranslate"><span class="pre">dynamodb_pyio</span></code>) aims to integrate with the database service by supporting source and sink connectors. Currently, the sink connector is available.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>The connector can be installed from PyPI.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>dynamodb_pyio
 </pre></div>
 </div>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<section id="sink-connector">
+<h3>Sink Connector<a class="headerlink" href="#sink-connector" title="Link to this heading"></a></h3>
+<p>It has the main composite transform (<a class="reference external" href="https://beam-pyio.github.io/dynamodb_pyio/autoapi/dynamodb_pyio/io/index.html#dynamodb_pyio.io.WriteToDynamoDB"><code class="docutils literal notranslate"><span class="pre">WriteToDynamoDB</span></code></a>), and it expects a list or tuple <em>PCollection</em> element. If the element is a tuple, the tuple’s first element is taken. If the element is not of the accepted types, you can apply the <a class="reference external" href="https://beam.apache.org/documentation/transforms/python/aggregation/groupintobatches/"><code class="docutils literal notranslate"><span class="pre">GroupIntoBatches</span></code></a> or <a class="reference external" href="https://beam.apache.org/releases/pydoc/current/apache_beam.transforms.util.html#apache_beam.transforms.util.BatchElements"><code class="docutils literal notranslate"><span class="pre">BatchElements</span></code></a> transform beforehand. Then, the records of the element are written to a DynamoDB table with help of the <a class="reference external" href="https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html"><code class="docutils literal notranslate"><span class="pre">batch_writer</span></code></a> of the boto3 package. Note that the batch writer will automatically handle buffering and sending items in batches. In addition, it will also automatically handle any unprocessed items and resend them as needed.</p>
+<p>The transform also has an option that handles duplicate records.</p>
 <ul class="simple">
-<li><p>TODO</p></li>
+<li><p><em>dedup_pkeys</em> - List of keys to be used for deduplicating items in buffer.</p></li>
 </ul>
+<section id="sink-connector-example">
+<h4>Sink Connector Example<a class="headerlink" href="#sink-connector-example" title="Link to this heading"></a></h4>
+<p>The transform can process many records, thanks to the <em>batch writer</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">apache_beam</span> <span class="k">as</span> <span class="nn">beam</span>
+<span class="kn">from</span> <span class="nn">dynamodb_pyio.io</span> <span class="kn">import</span> <span class="n">WriteToDynamoDB</span>
+
+<span class="n">records</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;pk&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">)]</span>
+
+<span class="k">with</span> <span class="n">beam</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="p">(</span>
+        <span class="n">p</span>
+        <span class="o">|</span> <span class="n">beam</span><span class="o">.</span><span class="n">Create</span><span class="p">([</span><span class="n">records</span><span class="p">])</span>
+        <span class="o">|</span> <span class="n">WriteToDynamoDB</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Duplicate records can be handled using the <em>dedup_pkeys</em> option.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">apache_beam</span> <span class="k">as</span> <span class="nn">beam</span>
+<span class="kn">from</span> <span class="nn">dynamodb_pyio.io</span> <span class="kn">import</span> <span class="n">WriteToDynamoDB</span>
+
+<span class="n">records</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;pk&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">)]</span>
+
+<span class="k">with</span> <span class="n">beam</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="p">(</span>
+        <span class="n">p</span>
+        <span class="o">|</span> <span class="n">beam</span><span class="o">.</span><span class="n">Create</span><span class="p">([</span><span class="n">records</span><span class="p">])</span>
+        <span class="o">|</span> <span class="n">WriteToDynamoDB</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="n">dedup_pkeys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">,</span> <span class="s2">&quot;sk&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Batches of elements can be controlled further with the <code class="docutils literal notranslate"><span class="pre">BatchElements</span></code> or <code class="docutils literal notranslate"><span class="pre">GroupIntoBatches</span></code> transform</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">apache_beam</span> <span class="k">as</span> <span class="nn">beam</span>
+<span class="kn">from</span> <span class="nn">apache_beam.transforms.util</span> <span class="kn">import</span> <span class="n">BatchElements</span>
+<span class="kn">from</span> <span class="nn">dynamodb_pyio.io</span> <span class="kn">import</span> <span class="n">WriteToDynamoDB</span>
+
+<span class="n">records</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;pk&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+
+<span class="k">with</span> <span class="n">beam</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="p">(</span>
+        <span class="n">p</span>
+        <span class="o">|</span> <span class="n">beam</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+        <span class="o">|</span> <span class="n">BatchElements</span><span class="p">(</span><span class="n">min_batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">max_batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="o">|</span> <span class="n">WriteToDynamoDB</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#/blog/2024/dynamodb-pyio-intro/"><span class="xref myst">Introduction to DynamoDB PyIO Sink Connector</span></a> for more examples.</p>
+</section>
+</section>
 </section>
 <section id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h2>
