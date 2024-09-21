@@ -33,7 +33,7 @@ class _DynamoDBWriteFn(beam.DoFn):
 
     Args:
         table_name (str): Amazon DynamoDB table name.
-        dedup_pkeys (list): List of keys to be used for de-duplicating records in buffer.
+        dedup_pkeys (list): List of keys to be used for deduplicating records in buffer.
         options (Union[DynamoDBOptions, dict]): Options to create a boto3 dynamodb client.
     """
 
@@ -51,7 +51,7 @@ class _DynamoDBWriteFn(beam.DoFn):
 
         Args:
             table_name (str): Amazon DynamoDB table name.
-            dedup_pkeys (list): List of keys to be used for de-duplicating records in buffer.
+            dedup_pkeys (list): List of keys to be used for deduplicating records in buffer.
             options (Union[DynamoDBOptions, dict]): Options to create a boto3 dynamodb client.
         """
         super().__init__()
@@ -80,7 +80,7 @@ class WriteToDynamoDB(beam.PTransform):
 
     Args:
         table_name (str): Amazon DynamoDB table name.
-        dedup_pkeys (list, Optional): List of keys to be used for de-duplicating records in buffer.
+        dedup_pkeys (list, Optional): List of keys to be used for deduplicating records in buffer.
     """
 
     def __init__(self, table_name: str, dedup_pkeys: list = None):
@@ -88,7 +88,7 @@ class WriteToDynamoDB(beam.PTransform):
 
         Args:
             table_name (str): Amazon DynamoDB table name.
-            dedup_pkeys (list, Optional): List of keys to be used for de-duplicating items in buffer.
+            dedup_pkeys (list, Optional): List of keys to be used for deduplicating items in buffer.
         """
         super().__init__()
         self.table_name = table_name

@@ -87,7 +87,7 @@ class DynamoDBClient(object):
         Args:
             records (list): Records to send into an Amazon SQS queue.
             table_name (str): Amazon DynamoDB table name.
-            dedup_pkeys (list, Optional): List of keys to be used for de-duplicating items in buffer.
+            dedup_pkeys (list, Optional): List of keys to be used for deduplicating items in buffer.
 
         Raises:
             DynamoDBClientError: DynamoDB client error.
