@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dynamodb_pyio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Apache Beam Python I/O connector for Amazon DynamoDB"
 authors = ["Beam PyIO"]
 license = "Apache License 2.0"

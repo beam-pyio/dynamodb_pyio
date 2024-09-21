@@ -78,7 +78,7 @@ with beam.Pipeline() as p:
     )
 ```
 
-See [Introduction to DynamoDB PyIO Sink Connector](/blog/2024/dynamodb-pyio-intro/) for more examples.
+See [Introduction to DynamoDB PyIO Sink Connector](https://beam-pyio.github.io/blog/2024/dynamodb-pyio-intro/) for more examples.
 
 ## Contributing
 
